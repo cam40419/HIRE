@@ -3,7 +3,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 import os
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'uploads/'
+app.config['UPLOAD_FOLDER'] = '../uploads/'
 app.secret_key = 'supersecretkey'
 
 # Route to render the HTML form
