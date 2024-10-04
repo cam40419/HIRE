@@ -1,0 +1,64 @@
+{"resume": {
+    "type": {"type": "json_object"},
+    "format": {
+    "name": "",
+    "age": null,
+    "contact_details": {
+        "email": "",
+        "phone": "",
+        "address": "",
+        "linkedin": "",
+        "github": "",
+        "website": ""
+    },
+    "summary": "",
+    "skills": [
+        {
+            "name": "",
+            "proficiency": ""
+        }
+    ],
+    "work_experience": [
+        {
+            "company": "",
+            "job_title": "",
+            "location": "",
+            "start_date": "",
+            "end_date": "",
+            "responsibilities": [""]
+        }
+    ],
+    "education": [
+        {
+            "institution": "",
+            "degree": "",
+            "field_of_study": "",
+            "start_date": "",
+            "end_date": "",
+            "gpa": null
+        }
+    ],
+    "projects": [
+        {
+            "title": "",
+            "description": "",
+            "technologies_used": [""],
+            "start_date": "",
+            "end_date": "",
+            "github_link": "",
+            "live_demo": ""
+        }
+    ],
+    "certifications": [
+        {
+            "name": "",
+            "issuing_organization": "",
+            "issue_date": "",
+            "expiration_date": "",
+            "credential_id": "",
+            "credential_url": ""
+        }
+    ],
+    "hobbies": [""],
+    "languages": [""]
+}}}
