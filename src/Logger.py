@@ -1,4 +1,5 @@
 import logging
+import os
 
 class Logger:
     _instance = None
@@ -11,7 +12,7 @@ class Logger:
 
     def setup_logger(self):
         self.logger = logging.getLogger(__name__)
-        logging.basicConfig(filename='example.log', encoding='utf-8', level=logging.DEBUG)
+        logging.basicConfig(filename=os.getenv("LOG_FILE"), encoding='utf-8', level=logging.DEBUG)
         self.logger.setLevel(logging.DEBUG)
         formatter = logging.Formatter('%(levelname)s | %(asctime)s | %(message)s')
         ch = logging.StreamHandler()
