@@ -6,12 +6,25 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HIRE Resume Grader</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
+    <div id="banner">HIRE</div>
     <h1>Upload Your Resume</h1>
     <form action="/upload" method="POST" enctype="multipart/form-data">
         <label for="resume">Choose your resume file:</label>
         <input type="file" id="resume" name="resume" accept=".pdf,.doc,.docx" required>
+        <label for="jobTitle">Choose your job field:</label>
+        <select id="jobTitle" name="jobTitle" required>
+            <option value="" disabled selected>Select your job title</option>
+            <option value="Software Engineer">Software Engineer</option>
+            <option value="Data Scientist">Data Scientist</option>
+            <option value="Product Manager">Product Manager</option>
+            <option value="Web Developer">Web Developer</option>
+            <option value="UI/UX Designer">UI/UX Designer</option>
+            <option value="System Analyst">System Analyst</option>
+            <!-- Add more job titles as needed -->
+        </select>
         <button type="submit">Upload</button>
     </form>
 </body>

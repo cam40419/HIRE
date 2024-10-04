@@ -24,15 +24,23 @@ def upload_file():
         flash('No selected file')
         return redirect(request.url)
 
+    # Get the job title from the form
+    job_title = request.form.get('jobTitle')
+
+    if job_title is None or job_title == "":
+        flash('No job title selected')
+        return redirect(request.url)
+
     if file:
         # Save the file to the upload folder
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
         file.save(file_path)
 
-        # Process the file or pass it to the backend for AI resume grading
-        # Add your AI model processing code here...
+        # Process the file and job title (this is where you'd add your AI processing code)
+        print(f"File {file.filename} uploaded successfully for job title: {job_title}")
 
-        return f"File {file.filename} uploaded successfully"
+        # You can also return a message or redirect to another page
+        return f"File {file.filename} uploaded successfully for job title: {job_title}"
 
 if __name__ == "__main__":
     # Ensure the upload folder exists
