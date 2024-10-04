@@ -31,3 +31,19 @@ On macOS/Linux:
 ### 3. Install the Required Dependencies
 
 `pip install -r requirements.txt`
+
+
+## Creating a .env File
+
+Create a file ".env" in the main HIRE directory. Add the paths for the save file, preset file, and response format file. 
+
+You will also need to add your opanai api key.
+
+Here is an example .env file:
+
+```
+API_KEY = YOUR_OPENAI_KEY
+SAVE_FILE = ..\data\saved_conversations.json
+PRESET_FILE = ..\data\presets.ini
+RESPONSE_FORMAT_FILE = ..\data\response_formats.json
+```
