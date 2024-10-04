@@ -1,0 +1,60 @@
+/* static/styles.css */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+#banner {
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    font-size: xx-large;
+    background-color: #333;
+    color: #4CAF50;
+    height: 10vh;
+    width: 100%;
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+    margin-top: 20px;
+}
+
+form {
+    max-width: 400px;
+    margin: 50px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+label, input[type="file"] {
+    display: block;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+label, select{
+    margin-bottom: 10px;
+    display: block;
+    width: 100%;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+}
+
+button:hover {
+    background-color: #45a049;
+}
