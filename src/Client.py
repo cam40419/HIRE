@@ -8,6 +8,8 @@ import Logger
 import time
 from random import randint
 
+context = "OpenAI Client --> "
+
 class chat_completion:
     logger = Logger.Logger()  # Class variable for logging
 
@@ -62,7 +64,7 @@ class chat_completion:
         # Initialize the conversation with a system message
         self.messages = [{"role": "system", "content": self.user}]
         self.saved = True
-        self.logger.log("Created new conversation")
+        self.logger.log(f"{context}Created new conversation")
 
     def save_conversation(self, save_name=None):
         self.save_name = save_name
@@ -84,10 +86,10 @@ class chat_completion:
                     f.write(json.dumps(saves))
 
                 self.saved = True
-                self.logger.log(f"Saved conversation: {self.save_name}")
+                self.logger.log(f"{context}Saved conversation: {self.save_name}")
                 print(f"Conversation saved as: {self.save_name}")
             else:
-                self.logger.log(f"Conversation: {self.save_name} already saved")
+                self.logger.log(f"{context}Conversation: {self.save_name} already saved")
 
     def load_conversation(self, save_name):
         try:
@@ -101,7 +103,7 @@ class chat_completion:
             self.seed = save['seed']
             self.saved = True
 
-            self.logger.log(f"Conversation: {self.save_name} loaded")
+            self.logger.log(f"{context}Conversation: {self.save_name} loaded")
             print(f"Loaded conversation: {self.save_name}")
         except Exception:
             self.logger.error(f"No saved conversation found: {self.save_name}")
@@ -129,7 +131,7 @@ class chat_completion:
         if 'format' in preset:
             self.load_response_format(preset['format'])
 
-        self.logger.log(f"Loaded preset: {self.preset_name} for conversation: {self.save_name}")
+        self.logger.log(f"{context}Loaded preset: {self.preset_name} for conversation: {self.save_name}")
 
     def load_response_format(self, response_format):
         try:
@@ -139,13 +141,13 @@ class chat_completion:
             self.response_type = format["type"]
             self.user = self.user + " Please respond with the following json format: " + json.dumps(format["format"])
             
-            self.logger.log(f"Loaded response format: {response_format} for conversation: {self.save_name}")
+            self.logger.log(f"{context}Loaded response format: {response_format} for conversation: {self.save_name}")
         except Exception as e:
             self.logger.error(f"No response format found: {response_format}")
             print(f"No response format found: {response_format}")
             
     def chat(self, query):
-        self.logger.log(f"Sending chat request using model: {self.model}")
+        self.logger.log(f"{context}Sending chat request using model: {self.model}")
         query_start = time.time()
 
         previous = self.messages
@@ -177,7 +179,7 @@ class chat_completion:
                 self.saved = False
                 self.last_query = query
                 self.last_response = response_message
-                self.logger.log(f"Received chat response in {query_time:.2f} seconds")
+                self.logger.log(f"{context}Received chat response in {query_time:.2f} seconds")
                 print(f"Chat response received in {query_time:.2f} seconds")
                 
         except Exception as e:
