@@ -47,13 +47,26 @@ class Vectorizer:
 
                 print(f"Section: {section}") 
                 section_vector = self.tfidfvec.fit_transform([section])
+                word_freq = self.get_word_frequencies([section])
 
-                # save as csv 
+                # save TF-IDF vectors as csv 
                 pd.DataFrame(
                     section_vector.toarray(), 
                     columns = self.tfidfvec.get_feature_names_out()
-                ).to_csv(f"./vectors/{category}/{section}.csv", index=False)
+                ).to_csv(f"./vectors/{row['Category']}/{section}.csv", index=False)
 
+                # Save word frequencies as csv
+                pd.DataFrame(
+                    list(word_freq.items()), 
+                    columns=["word", "frequency"]
+                ).to_csv(f"./vectors/{row['Category']}/{section}_freq.csv", index=False)
+    
+    def get_word_frequencies(self, text):
+        # Get the raw counts
+        vectorizer = TfidfVectorizer(use_idf=False, norm=None) 
+        word_vector = vectorizer.fit_transform([text])
+        word_freq = dict(zip(vectorizer.get_feature_names_out(), word_vector.toarray()[0]))
+        return word_freq
 
     def get_vec_csv(self, category, section):
         return pd.read_csv(f"./vectors/{category}/{section}.csv") 

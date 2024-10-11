@@ -2,77 +2,97 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import Vectorizer
+import numpy as np
 
 class Evaluator:
-    vectorizer = Vectorizer.Vectorizer()
+    def __init__(self, job_category, uploaded_resume_obj):
+        # Vectorizer object initialized with the resume database
+        self.vectorizer = Vectorizer.Vectorizer("resume2.csv")
+        self.vectorizer.process_resumes()
 
-    sections = None
+        self.job_category = job_category
+        self.uploaded_resume_obj = uploaded_resume_obj 
+        # Assume that the uploaded resume has already been split into sections
 
-
-    def __init__(self, dataset_resumes, dataset_vectors, uploaded_resume_vector):
-        """
-        Evaluator class to compare uploaded resumes to dataset resumes.
-        :param dataset_resumes: The list of Resume objects in the dataset.
-        :param dataset_vectors: The TF-IDF vectors for each section based on related dataset resumes.
-        :param uploaded_resume_vector: The TF-IDF vector of the uploaded resume.
-        """
-        self.dataset_resumes = dataset_resumes # Needed by the feedback function
-        self.dataset_vectors = dataset_vectors
-        self.uploaded_resume_vector = uploaded_resume_vector
+        self.uploaded_resume_sections = ["summary", "skills", "work_experience", "education", "projects", "certifications", "hobbies", "languages"]
+        self.scores = []
     
-    # Only needed if the uploaded resume is not already in vector form?
-    # def resume_obj_to_vector(self): 
-    #     return TfidfVectorizer()
-    def get_dataset_vectors(self, job_description):
-        """
-        Gets the section vectors from the dataset based on the job description  
-        """
-        # TODO: this needs to be done based on how vectorizer is set up/where the vectors are stored
-        self.dataset_vectors = vectorizer.get_vectors(job_description)
+    def get_dataset_text(self, dataset_vectors):
+        # Gets all the dataset sections for job category into text to be able to calc word frequencies
+        dataset_text = ""
+        for section_vectors in dataset_vectors:
+            dataset_text += "".join(section_vectors.flatten())
+        return dataset_text
     
-    def get_uploaded_sections(self, uploaded_sections):
-        """
-        Gets the section titles from the uploaded resume
-        """
-        self.sections = uploaded_sections
+    def resume_section_to_vector(self, uploaded_resume_section): 
+        # Go section by section - Assuming that the resume object has already been broken up into sections
+        tfidf_vectorizer = TfidfVectorizer()
+        section_vector = tfidf_vectorizer.fit_transform([uploaded_resume_section])
+        return section_vector.toarray()
 
-    def cosine_similarity_scores(self):
-        """
-        Calculate cosine similarity between the uploaded resume and dataset.
-        :return: Cosine similarity scores.
-        """
-        return cosine_similarity(self.uploaded_resume_vector, self.dataset_vectors)
+    def cosine_similarity_section_score(self, uploaded_vector, dataset_vectors):
+        similarities = []
+        for dataset_vector in dataset_vectors:
+            similarity_score = cosine_similarity(uploaded_vector, dataset_vector)
+            similarities.append(similarity_score.mean())
+        return np.mean(similarities)
     
-    def generate_overall_score(self):
-        return None
-    
-    def generate_section_feedback(self, score, keywords):
-        """
-        Generates feedback based on simalarity score for a certain section
-        :return text feedback for given resume section
-        """
-        return generate_feedback()
+    def evaluate_section(self, section_name, section_text):
+        # Gets the vector of the uploaded resume and the vectors from section from the dataset and returns cosine_sim score
+        uploaded_vector = self.resume_section_to_vector(section_text)
+        dataset_section_vectors = self.vectorizer.get_vec_csv(self.job_category, section_name)
 
+        section_score = self.cosine_similarity_section_score(uploaded_vector, dataset_section_vectors)
+        return section_score
+    
+    def evaluate_section_word_frequencies(self, section_name, section_text):
+        # Gets word frequencies for the uploaded resume section
+        uploaded_word_freq = self.vectorizer.get_word_frequencies(section_text)
+        overused_words = []
+        underused_words = []
+
+        # Get word frequencies from current section from dataset
+        dataset_word_vector = self.vectorizer.get_vec_csv(self.job_category, section_name)
+        dataset_word_freq = self.vectorizer.get_word_frequencies(self.get_dataset_text(dataset_word_vector))
+        
+        # Compare word frequencies in uploaded section and dataset
+        for word, freq in uploaded_word_freq.items():
+            dataset_avg_freq = dataset_word_freq.get(word, 0)
+            if freq > dataset_avg_freq * 1.5:  # Consider overused if 50% more frequent
+                overused_words.append(word)
+            elif freq < dataset_avg_freq * 0.5:  # Consider underused if 50% less frequent
+                underused_words.append(word)
+
+        return overused_words, underused_words
+    
+    def generate_section_feedback(self, score, section_name):
+        if score > 0.8:
+            return f"Section '{section_name}': Excellent match!"
+        elif 0.6 <= score <= 0.8:
+            return f"Section '{section_name}': Good match, but can be improved."
+        else:
+            return f"Section '{section_name}': Needs improvement."
+
+    def evaluate_section(self, section_name, section_content):
+        uploaded_vector = self.resume_section_to_vector(section_content)
+        dataset_vectors = self.dataset_vectors  # Get relevant dataset vectors
+        similarity_score = self.cosine_similarity_section_score(uploaded_vector, dataset_vectors)
+        return similarity_score
+    
     def evaluate(self):
-        """
-        Evaluate the uploaded resume by comparing it to the dataset.
-        :return: A tuple containing the highest similarity score and index of the best match.
-        """
-        scores = self.cosine_similarity_scores()
-        best_score_idx = np.argmax(scores)
-        return scores[0][best_score_idx], best_score_idx
+        # Regular section-wise evaluation (similarity) code remains the same
+        for section_name, section_content in self.uploaded_resume_sections.items():
+            # Evaluate cosine similarity
+            score = self.evaluate_section(section_name, section_content)
+            self.scores[section_name] = score
+            
+            # Generate feedback for over/underused words
+            overused, underused = self.evaluate_section_word_frequencies(section_name, section_content)
+            self.section_feedback[section_name] = {
+                "similarity_score": score,
+                "overused_words": overused,
+                "underused_words": underused,
+                "feedback": self.generate_section_feedback(score, section_name)
+            }
 
-
-# Notes for my own benefit
-"""
-This class is given the assumption that the words have been transformed into vectors already (by the vectorizer class)
-this is a good explanation for the TF-IDF thing: https://medium.com/@imamun/creating-a-tf-idf-in-python-e43f05e4d424 
-
-They need to be split up the same way for the cosine similarity to be meaningful
-
-In order to return feedback we also need to know the Words with frequency - based on the job category
-TODO: Need to get that somehow - should we be given the wordlist? or just give generic feedback to 
-return the top 3 or something similar?
-
-
-"""
+        return self.scores, self.section_feedback
