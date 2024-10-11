@@ -4,29 +4,119 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resume Feedback</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        h1, h2 {
+            color: #333;
+            text-align: center;
+        }
+        .section {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .section h2 {
+            color: #0073e6;
+            margin-top: 0;
+        }
+        .feedback {
+            color: #333;
+            line-height: 1.6;
+        }
+        .positive {
+            color: #4CAF50;
+        }
+        .improvement {
+            color: #FF9800;
+        }
+        .score {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #333;
+            text-align: center;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        .overall-score {
+            font-weight: bold;
+            font-size: 1.5em;
+            color: #0073e6;
+            text-align: center;
+            padding: 20px;
+            background-color: #e8f4fc;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
 <body>
-    <div id="banner">HIRE - Resume Feedback</div>
-    <h1>Resume Feedback for Job Title: {{ job_title }}</h1>
-    <div>
-        <h2>Scores</h2>
-        <ul>
-            {% for section, score in scores.items() %}
-            <li><strong>{{ section }}</strong>: {{ score }}</li>
-            {% endfor %}
-        </ul>
+
+<h1>Resume Feedback</h1>
+
+<div class="section">
+    <h2>Contact Information</h2>
+    <div class="feedback">
+        <p class="positive">✔ Good job including phone, email, and GitHub link. This is clear and provides multiple ways to reach you.</p>
+        <p class="improvement">➔ Consider adding a LinkedIn profile link if available, as it is often preferred by employers.</p>
     </div>
-    <div>
-        <h2>Detailed Feedback</h2>
-        {% for section, feedback_data in feedback.items() %}
-        <div>
-            <h3>{{ section | capitalize }}</h3>
-            <p>{{ feedback_data['feedback'] }}</p>
-            <p><strong>Overused words:</strong> {{ feedback_data['overused_words'] | join(', ') }}</p>
-            <p><strong>Underused words:</strong> {{ feedback_data['underused_words'] | join(', ') }}</p>
-        </div>
-        {% endfor %}
+    <div class="score">Score: 9/10</div>
+</div>
+
+<div class="section">
+    <h2>Education</h2>
+    <div class="feedback">
+        <p class="positive">✔ Including your GPA, relevant coursework, and both major and minor details is excellent. This highlights your academic strengths.</p>
+        <p class="improvement">➔ You may want to briefly mention any notable academic projects or achievements here if they directly relate to your field.</p>
     </div>
+    <div class="score">Score: 8/10</div>
+</div>
+
+<div class="section">
+    <h2>Experience</h2>
+    <div class="feedback">
+        <p class="positive">✔ The internship at Calld and your role at Five Below show a strong mix of technical and interpersonal skills.</p>
+        <p class="improvement">➔ For the internship, consider expanding on specific achievements or quantifiable impacts, such as “improved database efficiency by X%.”</p>
+        <p class="improvement">➔ In the sales associate role, emphasize any leadership or initiative taken. This will highlight versatility in both technical and non-technical roles.</p>
+    </div>
+    <div class="score">Score: 7/10</div>
+</div>
+
+<div class="section">
+    <h2>Projects</h2>
+    <div class="feedback">
+        <p class="positive">✔ Excellent use of specific technologies and methodologies, such as React.js, AWS, and Agile development. These demonstrate technical depth.</p>
+        <p class="improvement">➔ For the Brigham and Women’s Hospital project, briefly describe your personal contributions. Specify whether you led certain aspects or focused on particular technologies.</p>
+        <p class="improvement">➔ For the Sales Analysis Program, you might add results if available, such as “resulted in an X% increase in menu optimization.”</p>
+    </div>
+    <div class="score">Score: 8/10</div>
+</div>
+
+<div class="section">
+    <h2>Activities / Leadership / Honors</h2>
+    <div class="feedback">
+        <p class="positive">✔ Including leadership roles and honors (like Dean’s List) is great for demonstrating well-roundedness and reliability.</p>
+        <p class="improvement">➔ Consider adding a brief bullet under each leadership role describing any specific achievements, such as “increased recruitment engagement by X%” or “improved chapter resource management efficiency.”</p>
+    </div>
+    <div class="score">Score: 8/10</div>
+</div>
+
+<div class="section">
+    <h2>Additional Skills</h2>
+    <div class="feedback">
+        <p class="positive">✔ Comprehensive list of programming languages, frameworks, and tools. This provides a clear picture of your technical capabilities.</p>
+        <p class="improvement">➔ It might be beneficial to group these skills by category (e.g., Languages, Frameworks, Tools) for easier readability.</p>
+        <p class="improvement">➔ If you have any notable projects or certifications related to these skills, mentioning them here would strengthen this section further.</p>
+    </div>
+    <div class="score">Score: 8/10</div>
+</div>
+
+<div class="overall-score">Overall Score: 8/10</div>
+
 </body>
 </html>
