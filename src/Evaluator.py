@@ -8,8 +8,8 @@ import numpy as np
 # __init__
 # get_dataset_text(self)
 # evaluate_section(self, section_name, section_content)
-# resume_section_to_vector(self, section_text)
-# cosine_similarity_for_section(self, uploaded_vector, dataset_vectors)
+# resume_obj_to_vectors(self, section_text)
+# cosine_similarity_section_score(self, uploaded_vector, dataset_vectors)
 # evaluate_section_word_frequencies(self, section_name, section_content)
 # generate_section_feedback(self, section_name, score)
 # evaluate(self)
@@ -24,7 +24,7 @@ class Evaluator:
         self.uploaded_resume_obj = uploaded_resume_obj 
         # Assume that the uploaded resume has already been split into sections
 
-        self.uploaded_resume_vector = self.resume_obj_to_vector(uploaded_resume_obj)
+        self.uploaded_resume_section_vectors = self.resume_obj_to_vectors(uploaded_resume_obj)
         self.dataset_vectors = self.vectorizer.get_vectors(job_category)
 
         self.section_word_freq = {}
@@ -40,33 +40,26 @@ class Evaluator:
             dataset_text += "".join(section_vectors.flatten())
         return dataset_text
     
-    def resume_obj_to_vector(self, uploaded_resume_obj): 
-        # Go section by section? - need to vectorize in the same way that we did for the dataset vectors
+    def resume_obj_to_vectors(self, uploaded_resume_obj): 
+        # Go section by section - Assuming that the resume object has already been broken up into sections
         tfidf_vectorizer = TfidfVectorizer()
-        uploaded_resume_vector = tfidf_vectorizer.fit_transform([uploaded_resume_obj])
-        return uploaded_resume_vector.toarray()
+        section_vectors = []
+        for section in enumerate(uploaded_resume_obj):
+            section_vector = tfidf_vectorizer.fit_transform([section])
+            section_vectors.append(section_vector.toarray())
+        return section_vectors
 
-    # def get_dataset_vectors(self, job_category):
-    #     # this needs to be done based on how vectorizer is set up/where the vectors are stored
-    #     self.dataset_vectors = vectorizer.get_vectors(job_category)
+    def cosine_similarity_section_score(self, uploaded_vector, dataset_vectors):
+        similarities = []
+        for dataset_vector in dataset_vectors:
+            similarity_score = cosine_similarity(uploaded_vector, dataset_vector)
+            similarities.append(similarity_score.mean())
+        return np.mean(similarities)
     
-    # def get_uploaded_sections(self, uploaded_sections):
-    #     # TODO: This needs to be gotten so we can go through section by section
-    #     self.sections = uploaded_sections
-
-
-    def cosine_similarity_scores(self):
-        # Reinitialize scores
-        self.scores = []
-        for i, dataset_vector in enumerate(self.dataset_vectors):
-            similarity_score = cosine_similarity(self.uploaded_resume_vector, dataset_vector)
-            self.scores[section] = cosine_similarity(self.uploaded_resume_vector[section], self.dataset_vectors[section])
-        return self.scores
-    
-    def generate_overall_score(self):
-        if self.scores == []:
-            return None
-        return (np.mean(self.scores) * 100)
+    # def generate_overall_score(self):
+    #     if self.scores == []:
+    #         return None
+    #     return (np.mean(self.scores) * 100)
     
     def evaluate_section_word_frequencies(self, section_name, section_content):
         """
@@ -92,13 +85,13 @@ class Evaluator:
     def evaluate_section(self, section_name, section_content):
         uploaded_vector = self.resume_section_to_vector(section_content)
         dataset_vectors = self.dataset_vectors  # Get relevant dataset vectors
-        similarity_score = self.cosine_similarity_for_section(uploaded_vector, dataset_vectors)
+        similarity_score = self.cosine_similarity_section_score(uploaded_vector, dataset_vectors)
         return similarity_score
 
-    def evaluate(self):
-        scores = self.cosine_similarity_scores()
-        best_score_idx = np.argmax(scores)
-        return scores[0][best_score_idx], best_score_idx
+    # def evaluate(self):
+    #     scores = self.cosine_similarity_scores()
+    #     best_score_idx = np.argmax(scores)
+    #     return scores[0][best_score_idx], best_score_idx
     
     def evaluate2(self):
         # Regular section-wise evaluation (similarity) code remains the same
