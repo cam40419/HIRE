@@ -3,11 +3,12 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import vectorizer
 import numpy as np
+import os
 
 class Evaluator:
     def __init__(self, job_category, uploaded_resume_obj):
         # Vectorizer object initialized with the resume database
-        self.vectorizer = vectorizer.Vectorizer("resume2.csv")
+        self.vectorizer = vectorizer.Vectorizer(os.getenv("DATABASE_FILE"))
         self.vectorizer.process_resumes()
 
         self.job_category = job_category
