@@ -1,13 +1,14 @@
 # Create evaluator class for resume scoring
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-import Vectorizer
+import vectorizer
 import numpy as np
+import os
 
 class Evaluator:
     def __init__(self, job_category, uploaded_resume_obj):
         # Vectorizer object initialized with the resume database
-        self.vectorizer = Vectorizer.Vectorizer("resume2.csv")
+        self.vectorizer = vectorizer.Vectorizer(os.getenv("DATABASE_FILE"))
         self.vectorizer.process_resumes()
 
         self.job_category = job_category
@@ -28,6 +29,7 @@ class Evaluator:
         # Go section by section - Assuming that the resume object has already been broken up into sections
         tfidf_vectorizer = TfidfVectorizer()
         section_vector = tfidf_vectorizer.fit_transform([uploaded_resume_section])
+        
         return section_vector.toarray()
 
     def cosine_similarity_section_score(self, uploaded_vector, dataset_vectors):

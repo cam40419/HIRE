@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Feedback</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div id="banner">HIRE - Resume Feedback</div>
+    <h1>Resume Feedback for Job Title: {{ job_title }}</h1>
+    <div>
+        <h2>Scores</h2>
+        <ul>
+            {% for section, score in scores.items() %}
+            <li><strong>{{ section }}</strong>: {{ score }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div>
+        <h2>Detailed Feedback</h2>
+        {% for section, feedback_data in feedback.items() %}
+        <div>
+            <h3>{{ section | capitalize }}</h3>
+            <p>{{ feedback_data['feedback'] }}</p>
+            <p><strong>Overused words:</strong> {{ feedback_data['overused_words'] | join(', ') }}</p>
+            <p><strong>Underused words:</strong> {{ feedback_data['underused_words'] | join(', ') }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
