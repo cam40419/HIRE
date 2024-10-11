@@ -29,6 +29,7 @@ class Evaluator:
         # Go section by section - Assuming that the resume object has already been broken up into sections
         tfidf_vectorizer = TfidfVectorizer()
         section_vector = tfidf_vectorizer.fit_transform([uploaded_resume_section])
+        
         return section_vector.toarray()
 
     def cosine_similarity_section_score(self, uploaded_vector, dataset_vectors):
