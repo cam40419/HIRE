@@ -1,6 +1,11 @@
 # app.py
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 import os
+from Evaluator import Evaluator  # import your Evaluator class
+from Resume import Resume        # import your Resume class and other necessary classes
+import json
+from Resume import Resume
+from utils import *
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = '../uploads/'
@@ -31,23 +36,23 @@ def upload_file():
         flash('No job title selected')
         return redirect(request.url)
 
-    if file:
-        # Save the file to the upload folder
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-        file.save(file_path)
+    if file.filename == '' or not job_title:
+        flash('Please upload a file and select a job title.')
+        return redirect(request.url)
 
-        # Process the file and job title (this is where you'd add your AI processing code)
-        print(f"File {file.filename} uploaded successfully for job title: {job_title}")
+    # Save the file
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+    file.save(file_path)
 
-         # Simulated feedback processing (replace with AI processing code)
-        feedback = f"Resume uploaded successfully for the job title: {job_title}. Analysis and feedback would go here."
+    # Assume a function parse_resume(file_path) to convert the uploaded file into a Resume object
+    uploaded_resume = resume_from_file(file_path)  # You need to implement or import this
 
-        # Store feedback and job title in session for retrieval on feedback page
-        session['feedback'] = feedback
-        session['job_title'] = job_title
+    # Create an Evaluator instance and evaluate the resume
+    evaluator = Evaluator(job_title, uploaded_resume)
+    scores, feedback = evaluator.evaluate()
 
-        # You can also return a message or redirect to another page
-        return redirect('/feedback')
+    # Redirect to the feedback page and pass the feedback data
+    return redirect(url_for('feedback', scores=json.dumps(scores), feedback=json.dumps(feedback)))
 
 # Route to display feedback
 @app.route('/feedback')

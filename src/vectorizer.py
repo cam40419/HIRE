@@ -72,6 +72,6 @@ class Vectorizer:
         return pd.read_csv(f"./vectors/{category}/{section}.csv") 
     
 
-vec = Vectorizer("resume2.csv")
-vec.process_resumes()
-vec.get_vec_csv("HR", "languages")
+# vec = Vectorizer("resume2.csv")
+# vec.process_resumes()
+# vec.get_vec_csv("HR", "languages")
