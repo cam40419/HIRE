@@ -8,7 +8,7 @@ import numpy as np
 # __init__
 # get_dataset_text(self)
 # evaluate_section(self, section_name, section_content)
-# resume_obj_to_vectors(self, section_text)
+# resume_section_to_vector(self, section_text)
 # cosine_similarity_section_score(self, uploaded_vector, dataset_vectors)
 # evaluate_section_word_frequencies(self, section_name, section_content)
 # generate_section_feedback(self, section_name, score)
@@ -24,12 +24,6 @@ class Evaluator:
         self.uploaded_resume_obj = uploaded_resume_obj 
         # Assume that the uploaded resume has already been split into sections
 
-        self.uploaded_resume_section_vectors = self.resume_obj_to_vectors(uploaded_resume_obj)
-        self.dataset_vectors = self.vectorizer.get_vectors(job_category)
-
-        self.section_word_freq = {}
-        self.dataset_word_freq = self.vectorizer.get_word_frequencies(self.get_dataset_text(self.dataset_vectors))
-
         self.uploaded_resume_sections = ["summary", "skills", "work_experience", "education", "projects", "certifications", "hobbies", "languages"]
         self.scores = []
     
@@ -40,14 +34,11 @@ class Evaluator:
             dataset_text += "".join(section_vectors.flatten())
         return dataset_text
     
-    def resume_obj_to_vectors(self, uploaded_resume_obj): 
+    def resume_section_to_vector(self, uploaded_resume_section): 
         # Go section by section - Assuming that the resume object has already been broken up into sections
         tfidf_vectorizer = TfidfVectorizer()
-        section_vectors = []
-        for section in enumerate(uploaded_resume_obj):
-            section_vector = tfidf_vectorizer.fit_transform([section])
-            section_vectors.append(section_vector.toarray())
-        return section_vectors
+        section_vector = tfidf_vectorizer.fit_transform([uploaded_resume_section])
+        return section_vector.toarray()
 
     def cosine_similarity_section_score(self, uploaded_vector, dataset_vectors):
         similarities = []
@@ -56,22 +47,32 @@ class Evaluator:
             similarities.append(similarity_score.mean())
         return np.mean(similarities)
     
+    def evaluate_section(self, section_name, section_text):
+        # Gets the vector of the uploaded resume and the vectors from section from the dataset and returns cosine_sim score
+        uploaded_vector = self.resume_section_to_vector(section_text)
+        dataset_section_vectors = self.vectorizer.get_vec_csv(self.job_category, section_name)
+
+        section_score = self.cosine_similarity_section_score(uploaded_vector, dataset_section_vectors)
+        return section_score
+    
     # def generate_overall_score(self):
     #     if self.scores == []:
     #         return None
     #     return (np.mean(self.scores) * 100)
     
-    def evaluate_section_word_frequencies(self, section_name, section_content):
-        """
-        Compare word frequencies of a section from the uploaded resume to the dataset.
-        Detect overused or underused words.
-        """
-        uploaded_word_freq = self.vectorizer.get_word_frequencies(section_content)
+    def evaluate_section_word_frequencies(self, section_name, section_text):
+        # Gets word frequencies for the uploaded resume section
+        uploaded_word_freq = self.vectorizer.get_word_frequencies(section_text)
         overused_words = []
         underused_words = []
+
+        # Get word frequencies from current section from dataset
+        dataset_word_vector = self.vectorizer.get_vec_csv(self.job_category, section_name)
+        dataset_word_freq = self.vectorizer.get_word_frequencies(self.get_dataset_text(dataset_word_vector))
         
+        # Compare word frequencies in uploaded section and dataset
         for word, freq in uploaded_word_freq.items():
-            dataset_avg_freq = self.dataset_word_freq.get(word, 0)
+            dataset_avg_freq = dataset_word_freq.get(word, 0)
             if freq > dataset_avg_freq * 1.5:  # Consider overused if 50% more frequent
                 overused_words.append(word)
             elif freq < dataset_avg_freq * 0.5:  # Consider underused if 50% less frequent
@@ -79,21 +80,21 @@ class Evaluator:
 
         return overused_words, underused_words
     
-    # def generate_section_feedback(self, score, keywords):
-    #     return generate_feedback()
+    def generate_section_feedback(self, score, section_name):
+        if score > 0.8:
+            return f"Section '{section_name}': Excellent match!"
+        elif 0.6 <= score <= 0.8:
+            return f"Section '{section_name}': Good match, but can be improved."
+        else:
+            return f"Section '{section_name}': Needs improvement."
 
     def evaluate_section(self, section_name, section_content):
         uploaded_vector = self.resume_section_to_vector(section_content)
         dataset_vectors = self.dataset_vectors  # Get relevant dataset vectors
         similarity_score = self.cosine_similarity_section_score(uploaded_vector, dataset_vectors)
         return similarity_score
-
-    # def evaluate(self):
-    #     scores = self.cosine_similarity_scores()
-    #     best_score_idx = np.argmax(scores)
-    #     return scores[0][best_score_idx], best_score_idx
     
-    def evaluate2(self):
+    def evaluate(self):
         # Regular section-wise evaluation (similarity) code remains the same
         for section_name, section_content in self.uploaded_resume_sections.items():
             # Evaluate cosine similarity
@@ -105,7 +106,8 @@ class Evaluator:
             self.section_feedback[section_name] = {
                 "similarity_score": score,
                 "overused_words": overused,
-                "underused_words": underused
+                "underused_words": underused,
+                "feedback": self.generate_section_feedback(score, section_name)
             }
 
         return self.scores, self.section_feedback
