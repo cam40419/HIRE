@@ -3,6 +3,13 @@ import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 import Client
 
+# Methods:
+# __init__
+# process_resumes(self)
+# get_word_frequencies(self, text)
+# get_vec_csv(self, category, section)
+# get_vectors(self, category)
+
 class Vectorizer: 
 
     def __init__(self, db_string): 
@@ -47,17 +54,62 @@ class Vectorizer:
 
                 print(f"Section: {section}") 
                 section_vector = self.tfidfvec.fit_transform([section])
+                word_freq = self.get_word_frequencies([section])
 
-                # save as csv 
+                # save TF-IDF vectors as csv 
                 pd.DataFrame(
                     section_vector.toarray(), 
                     columns = self.tfidfvec.get_feature_names_out()
-                ).to_csv(f"./vectors/{category}/{section}.csv", index=False)
+                ).to_csv(f"./vectors/{row['Category']}/{section}.csv", index=False)
+
+                # Save word frequencies as csv
+                pd.DataFrame(
+                    list(word_freq.items()), 
+                    columns=["word", "frequency"]
+                ).to_csv(f"./vectors/{row['Category']}/{section}_freq.csv", index=False)
+    
+    def get_word_frequencies(self, text):
+        # Get the raw counts
+        vectorizer = TfidfVectorizer(use_idf=False, norm=None) 
+        word_vector = vectorizer.fit_transform([text])
+        word_freq = dict(zip(vectorizer.get_feature_names_out(), word_vector.toarray()[0]))
+        return word_freq
+    # def get_word_frequencies(self, category):
+    #     word_frequencies = {}
+    #     vector_dir = f"./vectors/{category}"
+        
+    #     if os.path.exists(vector_dir):
+    #         for file_name in os.listdir(vector_dir):
+    #             if file_name.endswith("_freq.csv"):  # Fetch word frequency files
+    #                 section_freq = pd.read_csv(os.path.join(vector_dir, file_name))
+    #                 for _, row in section_freq.iterrows():
+    #                     word = row['word']
+    #                     freq = row['frequency']
+    #                     if word in word_frequencies:
+    #                         word_frequencies[word] += freq
+    #                     else:
+    #                         word_frequencies[word] = freq
+
+    #     # Normalize the word frequencies
+    #     total_word_count = sum(word_frequencies.values())
+    #     word_frequencies = {word: freq / total_word_count for word, freq in word_frequencies.items()}
+    #     return word_frequencies
+
 
 
     def get_vec_csv(self, category, section):
         return pd.read_csv(f"./vectors/{category}/{section}.csv") 
     
+    # Getting vectors for the categorty as a whole (May or may not be used)
+    def get_vectors(self, category):
+        vectors = []
+        vector_dir = f"./vectors/{category}"
+        if os.path.exists(vector_dir):
+            for file_name in os.listdir(vector_dir):
+                if file_name.endswith(".csv"):
+                    section_vectors = pd.read_csv(os.path.join(vector_dir, file_name))
+                    vectors.append(section_vectors.values)
+        return vectors
 
 vec = Vectorizer("resume2.csv")
 vec.process_resumes()
