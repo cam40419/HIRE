@@ -4,16 +4,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 import Vectorizer
 import numpy as np
 
-# Methods:
-# __init__
-# get_dataset_text(self)
-# evaluate_section(self, section_name, section_content)
-# resume_section_to_vector(self, section_text)
-# cosine_similarity_section_score(self, uploaded_vector, dataset_vectors)
-# evaluate_section_word_frequencies(self, section_name, section_content)
-# generate_section_feedback(self, section_name, score)
-# evaluate(self)
-
 class Evaluator:
     def __init__(self, job_category, uploaded_resume_obj):
         # Vectorizer object initialized with the resume database
@@ -54,11 +44,6 @@ class Evaluator:
 
         section_score = self.cosine_similarity_section_score(uploaded_vector, dataset_section_vectors)
         return section_score
-    
-    # def generate_overall_score(self):
-    #     if self.scores == []:
-    #         return None
-    #     return (np.mean(self.scores) * 100)
     
     def evaluate_section_word_frequencies(self, section_name, section_text):
         # Gets word frequencies for the uploaded resume section
